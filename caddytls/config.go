@@ -245,6 +245,7 @@ func MakeTLSConfig(configs []*Config) (*tls.Config, error) {
 			return nil, fmt.Errorf("cannot multiplex %s (%s) and %s (%s) on same listener",
 				configs[i-1].Hostname, lastConfProto, cfg.Hostname, thisConfProto)
 		}
+		config.PreferServerCipherSuites = cfg.PreferServerCipherSuites
 
 		if !cfg.Enabled {
 			continue
@@ -357,7 +358,7 @@ func SetDefaultTLSParams(config *Config) {
 		config.ProtocolMinVersion = tls.VersionTLS11
 	}
 	if config.ProtocolMaxVersion == 0 {
-		config.ProtocolMaxVersion = tls.VersionTLS12
+		config.ProtocolMaxVersion = tls.VersionTLS13
 	}
 
 	// Prefer server cipher suites
@@ -379,6 +380,7 @@ var supportedProtocols = map[string]uint16{
 	"tls1.0": tls.VersionTLS10,
 	"tls1.1": tls.VersionTLS11,
 	"tls1.2": tls.VersionTLS12,
+	"tls1.3": tls.VersionTLS13,
 }
 
 // Map of supported ciphers, used only for parsing config.
@@ -392,6 +394,8 @@ var supportedProtocols = map[string]uint16{
 //
 // This map, like any map, is NOT ORDERED. Do not range over this map.
 var supportedCiphersMap = map[string]uint16{
+	"ECDHE-ECDSA-CHACHA20-POLY1305": tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+	"ECDHE-RSA-CHACHA20-POLY1305":   tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
 	"ECDHE-RSA-AES256-GCM-SHA384":   tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 	"ECDHE-ECDSA-AES256-GCM-SHA384": tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
 	"ECDHE-RSA-AES128-GCM-SHA256":   tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
@@ -413,6 +417,8 @@ var supportedCiphersMap = map[string]uint16{
 // Note that TLS_FALLBACK_SCSV is not in this list since it is always
 // added manually.
 var supportedCiphers = []uint16{
+	tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+	tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
 	tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
 	tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 	tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
@@ -429,6 +435,8 @@ var supportedCiphers = []uint16{
 
 // List of all the ciphers we want to use by default
 var defaultCiphers = []uint16{
+	tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+	tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
 	tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
 	tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 	tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
